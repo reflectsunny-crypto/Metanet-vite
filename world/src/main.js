@@ -4,7 +4,8 @@ import * as THREE from 'three';
    1. SCENE
 -------------------------------------------------- */
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x000000);
+scene.background = new THREE.Color(0x101018); // cielo scuro futuristico
+
 
 /* --------------------------------------------------
    2. CAMERA
@@ -15,7 +16,9 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
-camera.position.set(0, 2, 5);
+camera.position.set(0, 3, 10);
+camera.lookAt(0, 0, 0);
+
 
 /* --------------------------------------------------
    3. RENDERER
@@ -35,8 +38,8 @@ scene.add(cube);
 /* --------------------------------------------------
    5. TERRENO
 -------------------------------------------------- */
-const planeGeo = new THREE.PlaneGeometry(200, 200);
-const planeMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
+const planeGeo = new THREE.PlaneGeometry(2000, 2000);
+const planeMat = new THREE.MeshStandardMaterial({ color: 0x444444 });
 const plane = new THREE.Mesh(planeGeo, planeMat);
 plane.rotation.x = -Math.PI / 2;
 scene.add(plane);
@@ -44,8 +47,9 @@ scene.add(plane);
 /* --------------------------------------------------
    6. LUCI
 -------------------------------------------------- */
-const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+const ambient = new THREE.AmbientLight(0xffffff, 0.8);
 scene.add(ambient);
+
 
 const directional = new THREE.DirectionalLight(0xffffff, 1);
 directional.position.set(10, 20, 10);
