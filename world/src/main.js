@@ -1,60 +1,99 @@
-import './style.css'
-import javascriptLogo from './assets/javascript.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import { setupCounter } from './counter.js'
+import * as THREE from 'three';
 
-document.querySelector('#app').innerHTML = `
-<section id="center">
-  <div class="hero">
-    <img src="${heroImg}" class="base" width="170" height="179">
-    <img src="${javascriptLogo}" class="framework" alt="JavaScript logo"/>
-    <img src="${viteLogo}" class="vite" alt="Vite logo" />
-  </div>
-  <div>
-    <h1>Get started</h1>
-    <p>Edit <code>src/main.js</code> and save to test <code>HMR</code></p>
-  </div>
-  <button id="counter" type="button" class="counter"></button>
-</section>
+/* --------------------------------------------------
+   1. SCENE
+-------------------------------------------------- */
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000000);
 
-<div class="ticks"></div>
+/* --------------------------------------------------
+   2. CAMERA
+-------------------------------------------------- */
+const camera = new THREE.PerspectiveCamera(
+  75,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000
+);
+camera.position.set(0, 2, 5);
 
-<section id="next-steps">
-  <div id="docs">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#documentation-icon"></use></svg>
-    <h2>Documentation</h2>
-    <p>Your questions, answered</p>
-    <ul>
-      <li>
-        <a href="https://vite.dev/" target="_blank">
-          <img class="logo" src="${viteLogo}" alt="" />
-          Explore Vite
-        </a>
-      </li>
-      <li>
-        <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-          <img class="button-icon" src="${javascriptLogo}" alt="">
-          Learn more
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div id="social">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#social-icon"></use></svg>
-    <h2>Connect with us</h2>
-    <p>Join the Vite community</p>
-    <ul>
-      <li><a href="https://github.com/vitejs/vite" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#github-icon"></use></svg>GitHub</a></li>
-      <li><a href="https://chat.vite.dev/" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#discord-icon"></use></svg>Discord</a></li>
-      <li><a href="https://x.com/vite_js" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#x-icon"></use></svg>X.com</a></li>
-      <li><a href="https://bsky.app/profile/vite.dev" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#bluesky-icon"></use></svg>Bluesky</a></li>
-    </ul>
-  </div>
-</section>
+/* --------------------------------------------------
+   3. RENDERER
+-------------------------------------------------- */
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
 
-<div class="ticks"></div>
-<section id="spacer"></section>
-`
+/* --------------------------------------------------
+   4. OGGETTI (CUBO)
+-------------------------------------------------- */
+const geometry = new THREE.BoxGeometry();
+const material = new THREE.MeshStandardMaterial({ color: 0x00ffea });
+const cube = new THREE.Mesh(geometry, material);
+scene.add(cube);
 
-setupCounter(document.querySelector('#counter'))
+/* --------------------------------------------------
+   5. TERRENO
+-------------------------------------------------- */
+const planeGeo = new THREE.PlaneGeometry(200, 200);
+const planeMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
+const plane = new THREE.Mesh(planeGeo, planeMat);
+plane.rotation.x = -Math.PI / 2;
+scene.add(plane);
+
+/* --------------------------------------------------
+   6. LUCI
+-------------------------------------------------- */
+const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+scene.add(ambient);
+
+const directional = new THREE.DirectionalLight(0xffffff, 1);
+directional.position.set(10, 20, 10);
+scene.add(directional);
+
+/* --------------------------------------------------
+   7. INPUT (WASD)
+-------------------------------------------------- */
+const keys = {};
+window.addEventListener('keydown', e => keys[e.key] = true);
+window.addEventListener('keyup', e => keys[e.key] = false);
+
+/* --------------------------------------------------
+   8. MOVIMENTO
+-------------------------------------------------- */
+function movePlayer() {
+  const speed = 0.1;
+
+  if (keys['w']) camera.position.z -= speed;
+  if (keys['s']) camera.position.z += speed;
+  if (keys['a']) camera.position.x -= speed;
+  if (keys['d']) camera.position.x += speed;
+}
+
+/* --------------------------------------------------
+   9. ANIMATE (QUI VA!)
+-------------------------------------------------- */
+function animate() {
+  requestAnimationFrame(animate);
+
+  cube.rotation.x += 0.01;
+  cube.rotation.y += 0.01;
+
+  movePlayer();   // <--- QUI CHIAMI IL MOVIMENTO
+
+  renderer.render(scene, camera);
+}
+
+/* --------------------------------------------------
+   10. RESIZE
+-------------------------------------------------- */
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+/* --------------------------------------------------
+   11. AVVIO
+-------------------------------------------------- */
+animate();
