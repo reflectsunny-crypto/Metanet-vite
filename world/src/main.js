@@ -27,6 +27,7 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
+
 /* --------------------------------------------------
    4. OGGETTI (CUBO)
 -------------------------------------------------- */
@@ -34,6 +35,7 @@ const geometry = new THREE.BoxGeometry();
 const material = new THREE.MeshStandardMaterial({ color: 0x00ffea });
 const cube = new THREE.Mesh(geometry, material);
 scene.add(cube);
+
 
 /* --------------------------------------------------
    5. TERRENO
@@ -44,16 +46,17 @@ const plane = new THREE.Mesh(planeGeo, planeMat);
 plane.rotation.x = -Math.PI / 2;
 scene.add(plane);
 
+
 /* --------------------------------------------------
    6. LUCI
 -------------------------------------------------- */
 const ambient = new THREE.AmbientLight(0xffffff, 0.8);
 scene.add(ambient);
 
-
 const directional = new THREE.DirectionalLight(0xffffff, 1);
 directional.position.set(10, 20, 10);
 scene.add(directional);
+
 
 /* --------------------------------------------------
    7. INPUT (WASD)
@@ -62,20 +65,37 @@ const keys = {};
 window.addEventListener('keydown', e => keys[e.key] = true);
 window.addEventListener('keyup', e => keys[e.key] = false);
 
+
 /* --------------------------------------------------
    8. MOVIMENTO
 -------------------------------------------------- */
 function movePlayer() {
   const speed = 0.1;
 
-  if (keys['w']) camera.position.z -= speed;
-  if (keys['s']) camera.position.z += speed;
-  if (keys['a']) camera.position.x -= speed;
-  if (keys['d']) camera.position.x += speed;
+  if (keys["w"]) {
+    cube.position.x += Math.sin(camera.rotation.y) * speed;
+    cube.position.z += Math.cos(camera.rotation.y) * speed;
+  }
+
+  if (keys["s"]) {
+    cube.position.x -= Math.sin(camera.rotation.y) * speed;
+    cube.position.z -= Math.cos(camera.rotation.y) * speed;
+  }
+
+  if (keys["a"]) {
+    cube.position.x += Math.sin(camera.rotation.y + Math.PI / 2) * speed;
+    cube.position.z += Math.cos(camera.rotation.y + Math.PI / 2) * speed;
+  }
+
+  if (keys["d"]) {
+    cube.position.x += Math.sin(camera.rotation.y - Math.PI / 2) * speed;
+    cube.position.z += Math.cos(camera.rotation.y - Math.PI / 2) * speed;
+  }
 }
 
+
 /* --------------------------------------------------
-   9. ANIMATE (QUI VA!)
+   9. ANIMATE
 -------------------------------------------------- */
 function animate() {
   requestAnimationFrame(animate);
@@ -83,10 +103,18 @@ function animate() {
   cube.rotation.x += 0.01;
   cube.rotation.y += 0.01;
 
-  movePlayer();   // <--- QUI CHIAMI IL MOVIMENTO
+  movePlayer();
+
+  // CAMERA SEGUE IL CUBO
+  camera.position.x = cube.position.x + 5;
+  camera.position.y = cube.position.y + 3;
+  camera.position.z = cube.position.z + 5;
+
+  camera.lookAt(cube.position);
 
   renderer.render(scene, camera);
 }
+
 
 /* --------------------------------------------------
    10. RESIZE
@@ -96,6 +124,7 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
 
 /* --------------------------------------------------
    11. AVVIO
